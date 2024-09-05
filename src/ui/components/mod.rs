@@ -3,7 +3,6 @@
 //! Most it graciously yoinked from: https://github.com/squidowl/halloy/
 //!
 //! I cannot express my gratitude enough. Those guys are awesome.
-#![allow(unused)]
 // pub mod animation;
 pub mod empty;
 pub mod helpers;

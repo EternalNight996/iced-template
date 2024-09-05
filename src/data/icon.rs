@@ -1,4 +1,3 @@
-#![allow(unused)]
 use iced::alignment;
 use iced::widget::{image, text, Image};
 

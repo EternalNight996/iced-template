@@ -24,7 +24,6 @@ pub type DbPool = SqlitePool;
 pub struct DbClient(DbPool);
 
 /// Pgsql Connection
-#[allow(unused)]
 #[derive(Debug)]
 pub struct DbConn(PoolConnection<Sqlite>);
 

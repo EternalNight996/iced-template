@@ -1,4 +1,3 @@
-#![allow(unused)]
 use e_log::Level;
 use iced::widget::{
   button, checkbox, container, pick_list, progress_bar, radio, rule, scrollable, slider, text, text_editor,

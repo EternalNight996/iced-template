@@ -1,4 +1,3 @@
-#![allow(unused)]
 use e_utils::http::status::StatusCode;
 use std::borrow::Cow;
 

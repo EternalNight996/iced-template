@@ -21,8 +21,6 @@ use crate::{
 
 #[derive(Clone, Debug)]
 pub enum Message {
-  #[allow(unused)]
-  Ignore,
 }
 
 /// MyApp graphical application

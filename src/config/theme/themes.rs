@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use iced::Color;
 
 /// 主题
-#[allow(unused)]
 #[derive(Debug)]
 pub struct Theme {
   pub name: String,

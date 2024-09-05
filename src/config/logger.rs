@@ -1,4 +1,3 @@
-#![allow(unused)]
 use std::{fmt::Display, path::PathBuf};
 
 use e_log::{

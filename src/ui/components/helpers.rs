@@ -1,5 +1,4 @@
 //! Helper functions to construct widgets
-#![allow(unused)]
 use std::borrow::{Borrow, Cow};
 
 use iced::{

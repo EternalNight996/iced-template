@@ -71,7 +71,6 @@ impl DatabaseTableType {
 /// run a revert SQL from migration in a DDL executor
 /// deletes the row in [_migrations] table with specified migration version on completion (success or failure)
 /// returns the time taking to run the migration SQL
-#[allow(unused)]
 pub async fn migrate_revert(
   migrate_workspace: &str,
   pool: &DbPool,
@@ -150,7 +149,6 @@ impl Db {
   }
 
   /// 连接数据库
-  #[allow(unused)]
   pub fn connect(&mut self) -> e_utils::Result<()> {
     block_on(self.a_connect())
   }
