@@ -22,12 +22,12 @@
 - e-log (tracing)
   - Supports error capture and popup prompts
 
-# Run the Project
+# 调试项目
 ```bash
 cargo run
 ```
 
-# Build project on windows
+# 编译项目
 ```bash
 cd scripts
 ./build.bat
