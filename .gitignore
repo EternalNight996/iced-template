@@ -1,0 +1,20 @@
+/samples/
+/target/
+/test/
+# /.vscode/
+/.idea/
+/build/
+/extras/aseprite/
+/extras/old/
+/logs
+/iced-template
+*.wav
+*.umx
+*.txt
+# *.gif
+/plugins/print/btw/**/*.btw
+/plugins/print/btw/**/*.xlsx
+app.db*
+exports
+/out
+/libs/**/*.dll

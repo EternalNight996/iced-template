@@ -1,0 +1,110 @@
+
+[features]
+default = ["wgpu"]
+wgpu = ["iced/wgpu"]
+
+[dependencies]
+iced = { version = "0.12", default-features = false, features = [
+  "image",
+  "tokio",
+  "multi-window",
+  "lazy",
+] }
+tokio = { version = "1", features = ["full"] }
+e-log = { version = "0.2.5", features = [
+  "tracing",
+  "tracing-appender",
+  "tracing-subscriber",
+  "tracing-log",
+  "dialog",
+  "panic",
+] }
+e-utils = { version = "0.3.74", features = [
+  "macros",
+  "dialog",
+  "encode",
+  "fs",
+] }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+sqlx = { version = "0.8", features = [
+  "json",
+  "chrono",
+  "sqlite",
+  "runtime-tokio",
+] }
+thiserror = { version = "1.0" }
+rust-argon2 = "2.1"
+iced_core = "0.12.3"
+
+[build-dependencies]
+built = { version = "0.7", features = ["chrono", "git2"], optional = true }
+
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1"
+static_vcruntime = "2"
+
+[dev-dependencies]
+iced = { version = "0.12", features = [
+  "canvas",
+  "debug",
+  "highlighter",
+  "tokio",
+  "image",
+] }
+tokio = { version = "1", features = ["fs"] }
+rfd = "0.14"
+reqwest = { version = "0.12", default-features = false, features = [
+  "rustls-tls",
+] }
+rayon = { version = "1.10" }
+voronator = "0.2"
+
+[package.metadata.winresource]
+OriginalFilename = "iced-template.exe"
+Comments = "This software is Iced template"
+
+[profile.dev.package.sqlx-macros]
+opt-level = 3
+
+[profile.dev]
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'unwind'
+incremental = true
+codegen-units = 256
+rpath = false
+strip = false
+
+[profile.release]
+opt-level = "s"
+debug = false
+debug-assertions = false
+overflow-checks = false
+incremental = false
+rpath = false
+strip = true
+lto = true
+panic = 'abort'
+codegen-units = 1
+
+[package]
+name = "iced-template"
+authors = [
+  "Eternal Night <EternalNight996@gmail.com, EternalNightYeah2@yeah.net>",
+]
+description = "iced-template"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+documentation = "https://docs.rs"
+homepage = "https://gitee.com/eternalnight996"
+repository = "https://github.com/eternalnight996/iced-template"
+rust-version = "1.80.0"
+categories = ["gui", "network-programming"]
+keywords = ["gui", "e-"]
+license = "MIT"
