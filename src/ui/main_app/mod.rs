@@ -76,7 +76,7 @@ pub trait AppWindow: 'static + Sized {
   fn create(&mut self) -> Command<Self::Event>;
   fn close(&mut self) -> Command<Self::Event>;
   fn show(&self) -> Command<Self::Event>;
-  fn focus(&self) -> Command<Self::Event>;
+  fn focus(&mut self) -> Command<Self::Event>;
   fn exist(&self) -> bool;
   fn update(&mut self, event: Self::Event) -> Command<Self::Event>;
   fn view(&self) -> Element<'_, Self::Event>;
@@ -85,6 +85,7 @@ pub trait AppWindow: 'static + Sized {
 /// App graphical application
 pub struct App {
   pub id: window::Id,
+  pub focused_id: window::Id,
   pub view: View,
   pub flag: Config,
   pub log_app: log_app::App,
@@ -213,6 +214,7 @@ impl multi_window::Application for App {
   fn new(flags: Self::Flags) -> (Self, Command<Message>) {
     let app = App {
       id: window::Id::MAIN,
+      focused_id: window::Id::MAIN,
       view: View::Main,
       log_app: log_app::App::new(flags.user_cfg.clone()),
       login_app: login_app::App::new(UserCfg {
@@ -328,6 +330,12 @@ impl multi_window::Application for App {
         }
       },
       Message::Event(event) => match event {
+        event::Event::ChangeBit => {
+          let ref id = self.focused_id;
+          if id.eq(&self.login_app.id) {
+            return self.login_app.focus().map(Message::LoginEvent);
+          }
+        }
         event::Event::Clear => {}
         event::Event::Closed(id) => match id {
           x if x == self.id => return self.close_all(),
@@ -337,6 +345,12 @@ impl multi_window::Application for App {
         event::Event::Delete => {}
         event::Event::Save => return self.update(Message::SaveConfig),
         event::Event::Load => return self.update(Message::LoadConfig),
+        event::Event::Focused(id) => {
+          self.focused_id = id;
+          if self.focused_id.eq(&self.login_app.id) {
+            return self.login_app.focus().map(Message::LoginEvent);
+          }
+        }
       },
       Message::LogEvent(e) => return self.log_app.update(e).map(Message::LogEvent),
       Message::SettingEvent(e) => {
@@ -362,13 +376,14 @@ impl multi_window::Application for App {
 impl App {
   fn main_view(&self) -> Element<'_, Message> {
     let header_tools = row![
+      text(format!("运行时间: {}/S", self.run_time.elapsed().as_secs())),
       horizontal_space(),
-      text(format!("运行时间: {}/S", self.run_time.elapsed().as_secs()))
+      text("当前工站: IFT")
     ]
     .align_items(Alignment::Center)
     .spacing(10)
-    .padding([0, 0, 10, 10]);
-    let headers = layout::header(title_logo(), "", header_tools);
+    .padding(10);
+    let headers = layout::header(title_logo(), self.autotest.state.to_text(40), header_tools);
     let demo_view = layout::content(match self.view {
       View::Setting => self.setting_app.view().map(Message::SettingEvent),
       View::Log => self.log_app.view().map(Message::LogEvent),

@@ -137,7 +137,7 @@ impl AppWindow for App {
     self.id != window::Id::MAIN
   }
 
-  fn focus(&self) -> Command<Self::Event> {
+  fn focus(&mut self) -> Command<Self::Event> {
     window::gain_focus(self.id)
   }
 }

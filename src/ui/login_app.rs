@@ -26,14 +26,34 @@ pub enum Message {
   Result(bool),
 }
 
+#[derive(Debug)]
+struct InputState {
+  id: text_input::Id,
+  value: String,
+}
+impl Default for InputState {
+  fn default() -> Self {
+    Self {
+      id: text_input::Id::unique(),
+      value: String::new(),
+    }
+  }
+}
+#[derive(Debug)]
+enum Focus {
+  Name,
+  Passwd,
+  None,
+}
 /// MyApp graphical application
 #[derive(Debug)]
 pub struct App {
   pub view: super::main_app::View,
   pub flag: UserCfg,
   pub id: window::Id,
-  pub passwd: String,
-  pub name: String,
+  pub passwd: InputState,
+  pub name: InputState,
+  pub focus: Focus,
 }
 impl Default for App {
   fn default() -> Self {
@@ -46,8 +66,9 @@ impl Default for App {
         decorations: true,
         ..Default::default()
       },
-      passwd: String::new(),
-      name: String::new(),
+      passwd: InputState::default(),
+      name: InputState::default(),
+      focus: Focus::None,
     }
   }
 }
@@ -93,11 +114,17 @@ impl AppWindow for App {
 
   fn update(&mut self, event: Self::Event) -> Command<Self::Event> {
     match event {
-      Message::SetUserName(word) => self.name = word,
-      Message::SetUserPasswd(word) => self.passwd = word,
+      Message::SetUserName(word) => {
+        self.focus = Focus::Name;
+        self.name.value = word
+      }
+      Message::SetUserPasswd(word) => {
+        self.focus = Focus::Passwd;
+        self.passwd.value = word
+      }
       Message::Submit => {
-        let uname = self.name.clone();
-        let passwd = self.passwd.clone();
+        let uname = self.name.value.clone();
+        let passwd = self.passwd.value.clone();
         return Command::perform(
           async move {
             let pool = DB_SQLITE.read().await.pool();
@@ -117,11 +144,14 @@ impl AppWindow for App {
       column![
         row![
           "用户名：",
-          text_input("请输入用户名", &self.name).on_input(Message::SetUserName)
+          text_input("请输入用户名", &self.name.value)
+            .id(self.name.id.clone())
+            .on_input(Message::SetUserName)
         ],
         row![
           "密码    : ",
-          text_input("请输入密码", &self.passwd)
+          text_input("请输入密码", &self.passwd.value)
+            .id(self.passwd.id.clone())
             .secure(true)
             .on_submit(Message::Submit)
             .on_input(Message::SetUserPasswd)
@@ -160,8 +190,14 @@ impl AppWindow for App {
     self.id != window::Id::MAIN
   }
 
-  fn focus(&self) -> Command<Self::Event> {
-    window::gain_focus(self.id)
+  fn focus(&mut self) -> Command<Self::Event> {
+    let task = match self.focus {
+      Focus::None => text_input::focus(self.name.id.clone()),
+      Focus::Name => text_input::focus(self.passwd.id.clone()),
+      Focus::Passwd => Command::none(),
+    };
+    let main_focus = window::gain_focus(self.id);
+    Command::batch([main_focus, task])
   }
 }
 

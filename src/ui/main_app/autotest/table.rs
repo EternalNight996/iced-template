@@ -1,43 +1,11 @@
-use crate::config::{theme, Config};
-use crate::db::r#type::app::ExtendApp;
+use crate::config::Config;
+use crate::ui::components::helpers::text2;
 use crate::ui::components::table::table::{self};
 use crate::ui::main_app::AppWindow;
 use iced::widget::{checkbox, column, container, horizontal_space, responsive, row, scrollable, text};
 use iced::{window, Command, Length, Size};
-use serde_json::Value;
 
 use crate::ui::components::{Element, Renderer, Theme};
-
-#[derive(Debug, Clone)]
-pub struct Data {
-  pub state: DataState,
-  pub value: Value,
-  pub res_value: Value,
-  pub extend_app: ExtendApp,
-}
-impl Data {
-  pub fn generate(i: i32) -> Self {
-    Self {
-      state: match i % 2 {
-        0 if i == 0 => DataState::Ready,
-        1 => DataState::Fail,
-        _ => DataState::Success,
-      },
-      value: Value::Number(i.into()),
-      res_value: Value::Null,
-      extend_app: ExtendApp {
-        label: format!("{i}"),
-        ..Default::default()
-      },
-    }
-  }
-}
-#[derive(Debug, Clone)]
-pub enum DataState {
-  Ready,
-  Success,
-  Fail,
-}
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -51,7 +19,7 @@ pub enum Message {
 pub struct App {
   id: window::Id,
   columns: Vec<Column>,
-  rows: Vec<Data>,
+  rows: Vec<super::Data>,
   header: scrollable::Id,
   body: scrollable::Id,
   footer: scrollable::Id,
@@ -80,12 +48,12 @@ impl Default for App {
         Column::new(ColumnKind::Timeout),
         Column::new(ColumnKind::Count),
       ],
-      rows: (0..150).map(Data::generate).collect(),
+      rows: (0..150).map(super::Data::generate).collect(),
       header: scrollable::Id::unique(),
       body: scrollable::Id::unique(),
       footer: scrollable::Id::unique(),
       resize_columns_enabled: true,
-      footer_enabled: true,
+      footer_enabled: false,
       min_width_enabled: true,
       title: String::new(),
       flag: Config::default(),
@@ -182,15 +150,7 @@ impl AppWindow for App {
       table.into()
     });
 
-    let content = column![
-      row![
-        checkbox("自定义键宽度", self.resize_columns_enabled,).on_toggle(Message::ResizeColumnsEnabled),
-        checkbox("显示底部", self.footer_enabled,).on_toggle(Message::FooterEnabled),
-        checkbox("自适应宽度", self.min_width_enabled,).on_toggle(Message::MinWidthEnabled),
-      ],
-      table
-    ]
-    .spacing(6);
+    let content = column![table].spacing(6);
 
     container(container(content).width(Length::Fill).height(Length::Fill))
       .padding(20)
@@ -216,7 +176,7 @@ impl AppWindow for App {
     self.id != window::Id::MAIN
   }
 
-  fn focus(&self) -> Command<Self::Event> {
+  fn focus(&mut self) -> Command<Self::Event> {
     window::gain_focus(self.id)
   }
 }
@@ -269,7 +229,7 @@ pub enum ColumnKind {
 }
 
 impl<'a> table::Column<'a, Message, Theme, Renderer> for Column {
-  type Row = Data;
+  type Row = super::Data;
   fn header(&'a self, _col_index: usize) -> Element<'a, Message> {
     let content = match self.kind {
       ColumnKind::Index => "序号",
@@ -297,15 +257,8 @@ impl<'a> table::Column<'a, Message, Theme, Renderer> for Column {
     let ref app = row.extend_app;
     let content: Element<'_, _> = match self.kind {
       ColumnKind::Index => text(row_index + 1).into(),
-      ColumnKind::Label => text(&format!("{}", app.label)).into(),
-      ColumnKind::State => match row.state {
-        DataState::Ready => container("Ready").style(theme::Container::Default),
-        DataState::Success => container("Pass").style(theme::Container::Success),
-        DataState::Fail => container("Fail").style(theme::Container::Error),
-      }
-      .center_x()
-      .width(Length::Fill)
-      .into(),
+      ColumnKind::Label => text(&format!("{}", app.tag)).into(),
+      ColumnKind::State => row.state.to_container(15).into(),
       ColumnKind::Value => text(&row.value).into(),
       ColumnKind::ResValue => text(&row.res_value).into(),
       ColumnKind::Type => text(&app.r#type).into(),

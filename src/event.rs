@@ -15,6 +15,8 @@ pub enum Event {
   Closed(window::Id),
   Save,
   Load,
+  ChangeBit,
+  Focused(window::Id),
 }
 
 pub fn events() -> Subscription<Event> {
@@ -33,6 +35,7 @@ pub fn filter(event: iced::Event, status: event::Status) -> Option<Event> {
           false => Some(Event::Delete), // Delete will only delete the selected entries
         }
       }
+      keyboard::Key::Named(Named::Tab) => Some(Event::ChangeBit),
       // CTRL + S or ⌘ + S saves the current configuration
       keyboard::Key::Character("s") if modifiers.command() => Some(Event::Save),
       // CTRL + M or ⌘ + M loads the current configuration
@@ -42,6 +45,7 @@ pub fn filter(event: iced::Event, status: event::Status) -> Option<Event> {
     iced::Event::Window(id, event) => match event {
       window::Event::CloseRequested => Some(Event::CloseRequested),
       window::Event::Closed => Some(Event::Closed(id)),
+      window::Event::Focused => Some(Event::Focused(id)),
       _ => None,
     },
     _ => None,

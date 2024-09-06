@@ -189,7 +189,7 @@ impl AppWindow for App {
     window::change_mode(self.id, window::Mode::Windowed)
   }
 
-  fn focus(&self) -> Command<Self::Event> {
+  fn focus(&mut self) -> Command<Self::Event> {
     window::gain_focus(self.id)
   }
 }
